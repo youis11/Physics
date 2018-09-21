@@ -2,6 +2,8 @@
 #include "Module.h"
 #include "Globals.h"
 
+class b2World;
+
 class ModulePhysics : public Module
 {
 public:
@@ -13,7 +15,11 @@ public:
 	update_status PostUpdate();
 	bool CleanUp();
 
+
 private:
 
 	bool debug;
+
+	b2World* myWorld;
+
 };
