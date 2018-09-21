@@ -20,6 +20,8 @@ private:
 
 	bool debug;
 
+	int x, y, radius;
+
 	b2World* myWorld;
 
 };
