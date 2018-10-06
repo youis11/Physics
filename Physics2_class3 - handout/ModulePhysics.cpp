@@ -262,6 +262,14 @@ bool PhysBody::Contains(int x, int y) const
 	// TODO 1: Write the code to return true in case the point
 	// is inside ANY of the shapes contained by this body
 	
+	b2Fixture *fix = body->GetFixtureList();
+	b2Vec2 vec(PIXEL_TO_METERS(x), PIXEL_TO_METERS(y));
+
+	for (fix; fix != NULL; fix = fixt->GetNext())
+	{
+		if (fixt->GetShape()->TestPoint(body->GetTransform(), vec))
+			return true;
+	}
 
 	return false;
 }
