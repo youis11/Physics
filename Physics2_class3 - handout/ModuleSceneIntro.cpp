@@ -48,6 +48,7 @@ update_status ModuleSceneIntro::Update()
 	{
 		circles.add(App->physics->CreateCircle(App->input->GetMouseX(), App->input->GetMouseY(), 25));
 		// TODO 8: Make sure to add yourself as collision callback to the circle you creates
+
 	}
 
 	if(App->input->GetKey(SDL_SCANCODE_2) == KEY_DOWN)

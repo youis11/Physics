@@ -32,6 +32,8 @@ bool ModulePhysics::Start()
 	world = new b2World(b2Vec2(GRAVITY_X, -GRAVITY_Y));
 	// TODO 3: You need to make ModulePhysics class a contact listener
 
+	world->SetContactListener(this);
+
 	// big static circle as "ground" in the middle of the screen
 	int x = SCREEN_WIDTH / 2;
 	int y = SCREEN_HEIGHT / 1.5f;
@@ -58,12 +60,19 @@ update_status ModulePhysics::PreUpdate()
 {
 	world->Step(1.0f / 60.0f, 6, 2);
 
-	// TODO: HomeWork
-	/*
-	for(b2Contact* c = world->GetContactList(); c; c = c->GetNext())
+	PhysBody *pb1, *pb2;
+
+	for (b2Contact *c = world->GetContactList(); c; c = c->GetNext())
 	{
+		if (c->GetFixtureA()->IsSensor() && c->IsTouching())
+		{
+			pb1 = (PhysBody*)c->GetFixtureA()->GetBody()->GetUserData();
+			pb2 = (PhysBody*)c->GetFixtureA()->GetBody()->GetUserData();
+			if (pb1 && pb2 && pb1->listener)
+				pb1->listener->onCollision(pb1, pb2);
+		}
 	}
-	*/
+
 
 	return UPDATE_CONTINUE;
 }
@@ -87,6 +96,7 @@ PhysBody* ModulePhysics::CreateCircle(int x, int y, int radius)
 	// TODO 4: Add a pointer to PhysBody as UserData to the body
 	PhysBody* pbody = new PhysBody();
 	pbody->body = b;
+	pbody->body->SetUserData(pbody);
 	pbody->width = pbody->height = radius;
 
 	return pbody;
@@ -242,6 +252,19 @@ bool ModulePhysics::CleanUp()
 	// Delete the whole physics world!
 	delete world;
 
+	b2Body *b = world->GetBodyList();
+	b2Body *b_next;
+
+	while (b != NULL)
+	{
+		PhysBody *pb = (PhysBody*)b->GetUserData();
+		SDL_assert_release (pb);
+
+		b_next = b->GetNext();
+		world->DestroyBody(b);
+		b = b_next;
+	}
+
 	return true;
 }
 
@@ -265,9 +288,9 @@ bool PhysBody::Contains(int x, int y) const
 	b2Fixture *fix = body->GetFixtureList();
 	b2Vec2 vec(PIXEL_TO_METERS(x), PIXEL_TO_METERS(y));
 
-	for (fix; fix != NULL; fix = fixt->GetNext())
+	for (fix; fix != NULL; fix = fix->GetNext())
 	{
-		if (fixt->GetShape()->TestPoint(body->GetTransform(), vec))
+		if (fix->GetShape()->TestPoint(body->GetTransform(), vec))
 			return true;
 	}
 
@@ -302,6 +325,19 @@ int PhysBody::RayCast(int x1, int y1, int x2, int y2, float& normal_x, float& no
 	return ret;
 }
 
-// TODO 3
+// TODO 3: Make module physics inherit from b2ContactListener
+// then override void BeginContact(b2Contact* contact)
+// You need to make ModulePhysics class a contact listener
 
 // TODO 7: Call the listeners that are not NULL
+void ModulePhysics::BeginContact(b2Contact* contact, const b2Manifold* oldManifold)
+{
+	PhysBody* physA = (PhysBody*)contact->GetFixtureA()->GetBody()->GetUserData();
+	PhysBody* physB = (PhysBody*)contact->GetFixtureB()->GetBody()->GetUserData();
+
+	if (physA && physA->listener != NULL)
+		physA->listener->onCollision(physA, physB);
+
+	if (physB && physB->listener != NULL)
+		physB->listener->onCollision(physB, physA);
+}

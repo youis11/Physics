@@ -73,4 +73,9 @@ public:
 	}
 
 	// TODO 5: Create a OnCollision method that receives both PhysBodies
+
+	// On Collision
+	virtual void onCollision(PhysBody* bodyA, PhysBody* bodyB)
+	{ }
+
 };
