@@ -314,7 +314,7 @@ update_status ModulePhysics::PostUpdate()
 				mouse_joint->SetTarget(posB);*/
 
 				
-				App->renderer->DrawLine((App->input->GetMouseX()), (App->input->GetMouseY()), METERS_TO_PIXELS(mouse_joint->GetAnchorA(), mouse_joint->,255, 0, 0);
+				App->renderer->DrawLine((App->input->GetMouseX()), (App->input->GetMouseY()), METERS_TO_PIXELS(mouse_joint->GetAnchorA(mouse_position.x)), METERS_TO_PIXELS(mouse_joint->GetAnchorB(mouse_position.y)),255, 0, 0);
 			}
 		}
 	}
